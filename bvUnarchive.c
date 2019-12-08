@@ -49,7 +49,7 @@ void unpackDirectory(char* dir){
       for(int i=0; i<mData.numBytes; i+=MAX_BUFFER_SIZE){
         // We may not have 10MB left in the given file... This means that we 
         //   run the risk of reading too much. Gotta throttle it with this if
-        if (mData.numBytes-i < MAX_BUFFER+SIZE) {
+        if (mData.numBytes-i < MAX_BUFFER_SIZE) {
           char buff[mData.numBytes-i];
           int size = read(archiveFD, buff, MAX_BUFFER_SIZE);
           write(fd, buff, size);
