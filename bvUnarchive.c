@@ -11,7 +11,7 @@ struct metaData{
   char isDirectory;
   int numFiles;
   long numBytes;
-
+  mode_t permissions;
 } typedef metaData;
 
 //globals
@@ -42,7 +42,7 @@ void unpackDirectory(char* dir){
   else{
     //it's a file
     printf("file : %s\n", fullPath);
-    int fd = open(fullPath, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    int fd = open(fullPath, O_WRONLY|O_CREAT|O_TRUNC, mData.permissions);
 
     // if the file is larger than our maximum buffer, then write 10MB at a time
     if(mData.numBytes > MAX_BUFFER_SIZE){

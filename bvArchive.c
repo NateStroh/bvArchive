@@ -11,6 +11,7 @@ struct metaData{
   char isDirectory;
   int numFiles;
   long numBytes;
+  mode_t permissions;
 
 } typedef metaData;
 
@@ -18,7 +19,7 @@ struct metaData{
 int archiveFD;
 const int MAX_BUFFER_SIZE = 134217728; //128 MB is max buffer size
 
-void writeFile(char* fileName, char* filePath){
+void writeFile(char* fileName, char* filePath, int fPerm){
 
   int fd = open(filePath, O_RDONLY);
   long numBytes = lseek(fd, 0, SEEK_END);
@@ -30,11 +31,14 @@ void writeFile(char* fileName, char* filePath){
   mData.isDirectory = 0;
   mData.numFiles = 0;
   mData.numBytes = numBytes;
+  mData.permissions = fPerm;
   printf("writing file: %s\n", mData.fileName);
 
   //write metaData
   write(archiveFD, &mData, sizeof(metaData));
-
+  
+  //printf("size of metadata %ld\n", sizeof(metaData));
+  
   // write file 128 MB at a time, or entirely if <=128 MB
   if(numBytes > MAX_BUFFER_SIZE) {
     for(int i=0; i<numBytes; i+=MAX_BUFFER_SIZE) {
@@ -78,6 +82,7 @@ void directoryDelve(char* dir, char* fileName){
   mData.isDirectory = 1;
   mData.numFiles = numFiles;
   mData.numBytes = 0;
+  mData.permissions = 0;//TODO: this might need to change, just setting it to defualt for now, all directories are probably fine to have the same hardcoded permissions anyways
 
   printf("writing directory: %s\n", mData.fileName);
   write(archiveFD, &mData, sizeof(metaData));
@@ -115,7 +120,8 @@ void directoryDelve(char* dir, char* fileName){
     //checking if it's a file
     else if(S_ISREG(fileInfo.st_mode)){
       printf("%s\n", fullPath);
-      writeFile(de->d_name, fullPath); 
+      int filePerm = fileInfo.st_mode;
+      writeFile(de->d_name, fullPath, filePerm); 
     }
   }
   closedir(dr);
