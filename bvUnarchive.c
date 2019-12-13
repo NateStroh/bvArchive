@@ -7,11 +7,13 @@
 #include <sys/stat.h>
 
 struct metaData{
-  char fileName[256];
+  int fileNameLen;
+  char fileName[fileNameLen];
   char isDirectory;
   int numFiles;
   long numBytes;
   mode_t permissions;
+
 } typedef metaData;
 
 //globals

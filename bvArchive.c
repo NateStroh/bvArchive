@@ -7,7 +7,8 @@
 #include <sys/stat.h>
 
 struct metaData{
-  char fileName[256];
+  int fileNameLen;
+  char fileName[fileNameLen];
   char isDirectory;
   int numFiles;
   long numBytes;
@@ -27,6 +28,7 @@ void writeFile(char* fileName, char* filePath, int fPerm){
 
   //setting up struct 
   metaData mData;
+  mData.fileNameLen = strlen(fileName);
   strcpy(mData.fileName, fileName);
   mData.isDirectory = 0;
   mData.numFiles = 0;
@@ -37,7 +39,7 @@ void writeFile(char* fileName, char* filePath, int fPerm){
   //write metaData
   write(archiveFD, &mData, sizeof(metaData));
   
-  //printf("size of metadata %ld\n", sizeof(metaData));
+  printf("size of metadata %ld\n", sizeof(metaData));
   
   // write file 128 MB at a time, or entirely if <=128 MB
   if(numBytes > MAX_BUFFER_SIZE) {
@@ -78,6 +80,7 @@ void directoryDelve(char* dir, char* fileName){
 
   //setting up metadata struct for the file
   metaData mData;
+  mData.fileNameLen = strlen(fileName);
   strcpy(mData.fileName, fileName);
   mData.isDirectory = 1;
   mData.numFiles = numFiles;
@@ -85,6 +88,7 @@ void directoryDelve(char* dir, char* fileName){
   mData.permissions = 0;//TODO: this might need to change, just setting it to defualt for now, all directories are probably fine to have the same hardcoded permissions anyways
 
   printf("writing directory: %s\n", mData.fileName);
+  //printf("size of metadata: %ld\n", sizeof(metaData));
   write(archiveFD, &mData, sizeof(metaData));
 
   //struct to store file info from lstat
