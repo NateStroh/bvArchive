@@ -7,11 +7,12 @@
 #include <sys/stat.h>
 
 struct metaData{
-  char fileName[256];
+  int fileNameLen;
   char isDirectory;
   int numFiles;
   long numBytes;
   mode_t permissions;
+
 } typedef metaData;
 
 //globals
@@ -21,13 +22,20 @@ const int MAX_BUFFER_SIZE = 134217728; //128 MB is max buffer size
 void unpackDirectory(char* dir){
   metaData mData;
   read(archiveFD, &mData, sizeof(metaData));
+  //printf("size of metadata: %ld\n", sizeof(metaData));
 
-  printf("Filename: %s\n", mData.fileName);
+  //read filename
+  char fName [mData.fileNameLen];
+  read(archiveFD, &fName, sizeof(fName));
+  //printf("size of filename %ld\n", sizeof(fName));
+  
+
+  printf("Filename: %s\n", fName);
   int fpLen = strlen(dir);
-  char fullPath[fpLen+strlen(mData.fileName)+1];
+  char fullPath[fpLen+strlen(fName)+1];
   strcpy(fullPath, dir);
   strcat(fullPath, "/");
-  strcat(fullPath, mData.fileName);
+  strcat(fullPath, fName);
   
 
   if(mData.isDirectory){
